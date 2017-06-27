@@ -3,23 +3,27 @@ package main.second;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import main.Stats;
+
 /**
  * @author Wetterlund
  */
-public class Stats2 {
+public class Stats2 extends Stats {
 	private ArrayList<Integer> sourceData;
-	private int medianValue;
 
 	public Stats2(ArrayList<Integer> sourceData) {
 		this.sourceData = sourceData;
 	}
 
-	public int retriveMedianValue() throws Exception {
-		Collections.sort(sourceData);
+	protected void calculateMedianValue() {
+		try {
+			Collections.sort(sourceData);
 
-		medianValue = (int) sourceData.get((int) Math.ceil(sourceData.size() / 2));
-
-		return medianValue;
+			medianValue = (int) sourceData.get((int) Math.ceil(sourceData.size() / 2));
+		}
+		catch (Exception e) {
+			System.out.println(" The median value could not be calculated.");
+		}
 	}
 
 }

@@ -3,8 +3,8 @@ package main;
 import java.io.File;
 import java.util.Date;
 
-import main.first.FileParse;
-import main.first.Stats;
+import main.first.FileParse1;
+import main.first.Stats1;
 import main.second.FileParse2;
 import main.second.Stats2;
 
@@ -13,9 +13,9 @@ import main.second.Stats2;
  */
 public class CabonlineTechnologiesTest {
 
-	private static int EXECUTION_ALL = 0;
-	private static int EXECUTION_FIRST = 1;
-	private static int EXECUTION_SECOND = 2;
+	private static final int	EXECUTION_ALL		= 0;
+	private static final int	EXECUTION_FIRST		= 1;
+	private static final int	EXECUTION_SECOND	= 2;
 
 	/**
 	 * @param args
@@ -30,11 +30,16 @@ public class CabonlineTechnologiesTest {
 		File sourcePath = new File(filePath);
 		File processedPath = new File(filePath + File.separator + "processed");
 
-		String executionMode = null;
+		String fileType = null;
 		if (args.length >= 2) {
+			fileType = args[1].toString();
+		}
+		int fileTypeFlag = getFileTypeFlag(fileType);
+
+		String executionMode = null;
+		if (args.length >= 3) {
 			executionMode = args[1].toString();
 		}
-		System.out.println("Debug executionMode: " + executionMode);
 		int executionModeFlag = getExecutionModeFlag(executionMode);
 
 		System.out.println(" Processing files in (path name): " + filePath);
@@ -67,7 +72,6 @@ public class CabonlineTechnologiesTest {
 		}
 
 		Date startDate;
-		int medianValue;
 		for (int i = 0; i < sourceFiles.length; i++) {
 			if (sourceFiles[i].isFile() == false) {
 				continue;
@@ -83,30 +87,29 @@ public class CabonlineTechnologiesTest {
 				if (executionModeFlag == EXECUTION_ALL || executionModeFlag == EXECUTION_FIRST) {
 					startDate = new Date();
 
-					FileParse fileParse = new FileParse(sourceFiles[i]);
-					Stats stats = new Stats(fileParse.parseFile());
-					medianValue = stats.retriveMedianValue();
+					FileParse1 fileParse = new FileParse1(sourceFiles[i]);
+					fileParse.parseFile(fileTypeFlag);
+					Stats stats = new Stats1(fileParse.getData());
 
-					System.out.println(" Median value in file was: " + medianValue);
+					System.out.println(" Median value in file was: " + stats.getMedianValue());
 
 					System.out.println(" Processed file " + sourceFileName + " in " + ((new Date()).getTime() - startDate.getTime()) + " ms with variant 1");
-					System.out.println(" Memory total: " + Runtime.getRuntime().totalMemory() / 1048576 + " MB / max: " + Runtime.getRuntime().maxMemory()
-							/ 1048576 + " MB / free: " + Runtime.getRuntime().freeMemory() / 1048576 + " MB");
 				}
 
 				if (executionModeFlag == EXECUTION_ALL || executionModeFlag == EXECUTION_SECOND) {
 					startDate = new Date();
 
 					FileParse2 fileParse2 = new FileParse2(sourceFiles[i]);
-					Stats2 stats2 = new Stats2(fileParse2.parseFile());
-					medianValue = stats2.retriveMedianValue();
+					fileParse2.parseFile(fileTypeFlag);
+					Stats2 stats2 = new Stats2(fileParse2.getData());
 
-					System.out.println(" Median value in file was: " + medianValue);
+					System.out.println(" Median value in file was: " + stats2.getMedianValue());
 
 					System.out.println(" Processed file " + sourceFileName + " in " + ((new Date()).getTime() - startDate.getTime()) + " ms with variant 2");
-					System.out.println(" Memory total: " + Runtime.getRuntime().totalMemory() / 1048576 + " MB / max: " + Runtime.getRuntime().maxMemory()
-							/ 1048576 + " MB / free: " + Runtime.getRuntime().freeMemory() / 1048576 + " MB");
 				}
+
+				System.out.println(" Memory total: " + Runtime.getRuntime().totalMemory() / 1048576 + " MB / max: " + Runtime.getRuntime().maxMemory()
+						/ 1048576 + " MB / free: " + Runtime.getRuntime().freeMemory() / 1048576 + " MB");
 
 				File processedFile = new File(processedPath, sourceFileName);
 				sourceFiles[i].renameTo(processedFile);
@@ -114,8 +117,23 @@ public class CabonlineTechnologiesTest {
 			catch (Exception e) {
 				System.out.println(" There where an exception while parsing the file so no median value could be retrived.");
 
-				e.printStackTrace();
+				// e.printStackTrace();
 			}
+		}
+	}
+
+	private static int getFileTypeFlag(String fileType) {
+		try {
+			int fileTypeInt = Integer.parseInt(fileType);
+			if (fileTypeInt == FileParse.FILE_TYPE_ARRAY) {
+				return FileParse.FILE_TYPE_ARRAY;
+			}
+			else {
+				return FileParse.FILE_TYPE_LINES;
+			}
+		}
+		catch (Exception e) {
+			return FileParse.FILE_TYPE_LINES;
 		}
 	}
 
@@ -136,4 +154,5 @@ public class CabonlineTechnologiesTest {
 			return EXECUTION_ALL;
 		}
 	}
+
 }
